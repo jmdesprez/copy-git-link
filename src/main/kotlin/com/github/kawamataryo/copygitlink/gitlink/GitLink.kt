@@ -22,18 +22,16 @@ class GitLink(actionEvent: AnActionEvent) {
             val logicalStartPosition = editor.visualToLogicalPosition(caret.selectionStartPosition)
             val logicalEndPosition = editor.visualToLogicalPosition(caret.selectionEndPosition)
             val start = logicalStartPosition.line + 1
-            val end = if(logicalEndPosition.column == 0 && logicalStartPosition.line != logicalEndPosition.line) logicalEndPosition.line else logicalEndPosition.line + 1
+            val end = if (logicalEndPosition.column == 0 && logicalStartPosition.line != logicalEndPosition.line) logicalEndPosition.line else logicalEndPosition.line + 1
             return if (start == end) "#L$start" else "#L$start-L$end"
         }
 
-    val repositoryPath: String
+    val repositoriesPath: List<String>
         get() {
-            val url = repo?.remotes?.first()?.firstUrl ?: ""
-            val result =
-                Regex(".*(?:@|\\/\\/)(.[^:\\/]*).([^\\.]+)\\.git").matchEntire(
-                    url
-                )
-            return result?.groupValues?.get(1) + "/" + result?.groupValues?.get(2) ?: ""
+            val regex = Regex(".*(?:@|\\/\\/)(.[^:\\/]*).([^\\.]+)\\.git")
+            return repo?.remotes?.mapNotNull { it.firstUrl }?.mapNotNull { regex.matchEntire(it) }?.map { result ->
+                result.groupValues[1] + "/" + result.groupValues[2]
+            } ?: listOf()
         }
 
     val relativePath: String
@@ -42,9 +40,11 @@ class GitLink(actionEvent: AnActionEvent) {
             return path.replace(repo?.root?.path ?: "", "")
         }
 
-    val permalink: String
+    fun toGitLink(path: String) = "https://$path/blob/${repo?.currentRevision}$relativePath$linePath"
+
+    val permalinks: List<String>
         get() {
-            return "https://$repositoryPath/blob/${repo?.currentRevision}$relativePath$linePath"
+            return repositoriesPath.map { path -> "https://$path/blob/${repo?.currentRevision}$relativePath$linePath" }
         }
     val branchLink: String
         get() {
