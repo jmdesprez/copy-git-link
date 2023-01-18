@@ -41,14 +41,15 @@ class GitLink(actionEvent: AnActionEvent) {
         }
 
     fun toGitLink(path: String) = "https://$path/blob/${repo?.currentRevision}$relativePath$linePath"
+    fun toBranchLink(path: String) = "https://$path/blob/${repo?.currentBranch}$relativePath$linePath"
 
     val permalinks: List<String>
         get() {
             return repositoriesPath.map { path -> "https://$path/blob/${repo?.currentRevision}$relativePath$linePath" }
         }
-    val branchLink: String
+    val branchLink: List<String>
         get() {
-            return "https://$repositoryPath/blob/${repo?.currentBranch}$relativePath$linePath"
+            return repositoriesPath.map { repositoryPath -> "https://$repositoryPath/blob/${repo?.currentBranch}$relativePath$linePath"}
         }
 
     val source:String

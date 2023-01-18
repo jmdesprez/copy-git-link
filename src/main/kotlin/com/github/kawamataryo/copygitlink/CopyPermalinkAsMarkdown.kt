@@ -2,7 +2,6 @@ package com.github.kawamataryo.copygitlink
 
 import GitLink
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import copyToClipboard
@@ -12,7 +11,7 @@ import truncateText
 
 class CopyPermalinkAsMarkdown : CopyPermalinkAbstractAction() {
 
-    override fun doCopy(gitLink: GitLink, selected: String, project: Project) {
+    override fun doCopy(gitLink: GitLink, selected: String, project: Project, event: AnActionEvent) {
         val linkText = gitLink.relativePath + gitLink.linePath
         val permalink = gitLink.toGitLink(selected)
 

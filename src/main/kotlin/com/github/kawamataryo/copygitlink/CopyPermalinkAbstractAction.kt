@@ -21,7 +21,7 @@ import javax.swing.JList
 import javax.swing.ListSelectionModel.SINGLE_SELECTION
 
 abstract class CopyPermalinkAbstractAction : AnAction() {
-    abstract fun doCopy(gitLink: GitLink, selected: String, project: Project)
+    abstract fun doCopy(gitLink: GitLink, selected: String, project: Project, event: AnActionEvent)
 
     override fun actionPerformed(e: AnActionEvent) {
         val gitLink = GitLink(e)
@@ -37,16 +37,21 @@ abstract class CopyPermalinkAbstractAction : AnAction() {
                 "Copy failed.\n You will need to set up a GitHub remote repository to run it."
             )
 
-            1 -> doCopy(gitLink, repositoriesPath.first(), project)
+            1 -> doCopy(gitLink, repositoriesPath.first(), project, e)
             else -> createPopup(project, caret, repositoriesPath) { permalink ->
-                    // Copy to clipboard
-                    doCopy(gitLink, permalink, project)
-                }
+                // Copy to clipboard
+                doCopy(gitLink, permalink, project, e)
+            }
                 .showInBestPositionFor(caret.editor)
         }
     }
 
-    private fun createPopup(project: Project, caret: Caret, messages: List<String>, callback: Consumer<in String>): JBPopup {
+    private fun createPopup(
+        project: Project,
+        caret: Caret,
+        messages: List<String>,
+        callback: Consumer<in String>
+    ): JBPopup {
         val rightMargin = getSubjectRightMargin(project)
         return JBPopupFactory.getInstance().createPopupChooserBuilder(messages)
             .setFont(caret.editor.colorsScheme.getFont(EditorFontType.PLAIN))
